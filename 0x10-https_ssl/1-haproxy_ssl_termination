@@ -41,5 +41,5 @@ frontend haproxy_balancer
 
 backend webservers
     balance roundrobin
-    server 348858-web-01 100.26.230.167:80 check
-    server 348858-web-02 34.202.164.217:80 check
+    server 373551-web-01 52.91.122.58:80 check
+    server 373551-web-02 34.207.61.125:80 check
