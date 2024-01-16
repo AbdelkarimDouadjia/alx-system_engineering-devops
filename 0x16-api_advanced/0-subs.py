@@ -1,18 +1,25 @@
 #!/usr/bin/python3
-# get subs
-from requests import get
-from sys import argv
+"""
+Query Reddit API for number of subscribers for a given subreddit
+"""
+import requests
 
 
 def number_of_subscribers(subreddit):
-    """subs"""
-    head = {'User-Agent': 'Dan Kazam'}
-    count = get('https://www.reddit.com/r/{}/about.json'.format(
-        subreddit), headers=head).json()
-    try:
-        return count.get('data').get('subscribers')
-    except:
-        return 0
+    """
+        return number of subscribers for a given subreddit
+        return 0 if invalid subreddit given
+    """
+    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
 
-if __name__ == "__main__":
-    number_of_subscribers(argv[1])
+    # get user agent
+    # https://stackoverflow.com/questions/10606133/ -->
+    # sending-user-agent-using-requests-library-in-python
+    headers = requests.utils.default_headers()
+    headers.update({'User-Agent': 'My User Agent 1.0'})
+
+    r = requests.get(url, headers=headers).json()
+    subscribers = r.get('data', {}).get('subscribers')
+    if not subscribers:
+        return 0
+    return subscribers
