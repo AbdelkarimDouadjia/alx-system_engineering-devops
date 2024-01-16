@@ -1,37 +1,27 @@
 #!/usr/bin/python3
-"""Query Reddit API to determine subreddit sub count
-"""
+# get subs
+from requests import get
+from sys import argv
 
-import requests
 
-
-def recurse(subreddit, hot_list=[], next_page=None, count=0):
-    """Request subreddit recursively using pagination
-    """
-    # set custom user-agent
-    user_agent = '0x16-api_advanced-jmajetich'
-    url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
-    # if page specified, pass as parameter
-    if next_page:
-        url += '?after={}'.format(next_page)
-    headers = {'User-Agent': user_agent}
-
-    r = requests.get(url, headers=headers, allow_redirects=False)
-
-    if r.status_code != 200:
+def recurse(subreddit, hotlist=[], after=None):
+    """subs"""
+    head = {'User-Agent': 'Dan Kazam'}
+    try:
+        if after:
+            count = get('https://www.reddit.com/r/{}/hot.json?after={}'.format(
+                subreddit, after), headers=head).json().get('data')
+        else:
+            count = get('https://www.reddit.com/r/{}/hot.json'.format(
+                subreddit), headers=head).json().get('data')
+        hotlist += [dic.get('data').get('title')
+                    for dic in count.get('children')]
+        if count.get('after'):
+            return recurse(subreddit, hotlist, after=count.get('after'))
+        return hotlist
+    except:
         return None
 
-    # load response unit from json
-    data = r.json()['data']
 
-    # extract list of pages
-    posts = data['children']
-    for post in posts:
-        count += 1
-        hot_list.append(post['data']['title'])
-
-    next_page = data['after']
-    if next_page is not None:
-        return recurse(subreddit, hot_list, next_page, count)
-    else:
-        return hot_list
+if __name__ == "__main__":
+    recurse(argv[1])
